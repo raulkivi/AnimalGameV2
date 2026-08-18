@@ -13,6 +13,8 @@ heap struct in a custom save format. Every learned animal or question
 becomes a live word in the Forth dictionary, and the save file is literal
 Forth source that rebuilds those words on load.
 
+![Animal Game V2 guessing wrong and learning "Wolf" from the player](docs/assets/demo.gif)
+
 ## Contents
 
 - [Requirements](#requirements)
