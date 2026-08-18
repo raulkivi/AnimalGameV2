@@ -1,5 +1,7 @@
 # Animal Game V2
 
+[![CI](https://github.com/raulkivi/AnimalGameV2/actions/workflows/ci.yml/badge.svg)](https://github.com/raulkivi/AnimalGameV2/actions/workflows/ci.yml)
+
 A "20 questions" style guessing game written in **Forth** (gforth). The
 computer tries to guess the animal you're thinking of by asking yes/no
 questions. When it guesses wrong, you teach it a new animal and a question

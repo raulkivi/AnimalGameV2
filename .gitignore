@@ -1,3 +1,9 @@
 # Generated at runtime by the game (make run) — see README "Running"
 data/rules.fs
 data/rules.fs.tmp
+
+# OS / editor cruft
+.DS_Store
+*.swp
+.vscode/
+.idea/
