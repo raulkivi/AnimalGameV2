@@ -14,7 +14,7 @@
 GFORTH   = gforth
 SRC_MAIN = src/main.fs
 
-.PHONY: run test test-node test-ui test-tree test-persist test-integration clean
+.PHONY: run test test-node test-ui test-tree test-persist test-integration test-fresh-clone clean
 
 # run-test(file, name) — one shell command list; expects $$tmp to hold the
 # recipe's scratch directory (set up by with-tmp below).
@@ -32,9 +32,10 @@ define with-tmp
 endef
 
 run:
+	@mkdir -p data
 	$(GFORTH) $(SRC_MAIN)
 
-test: test-node test-ui test-tree test-persist test-integration
+test: test-node test-ui test-tree test-persist test-integration test-fresh-clone
 
 test-node:
 	$(call with-tmp,{ $(call run-test,tests/test-node.fs,test-node); })
@@ -55,6 +56,20 @@ test-persist:
 test-integration:
 	$(call with-tmp,{ $(call run-test,tests/integration/round1-learn.fs,integration-round1); } && \
 	  { $(call run-test,tests/integration/round2-verify-restart.fs,integration-round2); })
+
+# A fresh clone has no data/rules.fs (and possibly no data/ at all). Copy
+# only src/ into an empty scratch directory, play one scripted learning
+# round through the real main.fs from there, and check it exits cleanly
+# and leaves a non-empty data/rules.fs behind.
+test-fresh-clone:
+	$(call with-tmp,cp -r src "$$tmp/src" && \
+	  printf 'no\nWolf\nDoes it howl?\nyes\nno\n' | \
+	    ( cd "$$tmp" && $(GFORTH) src/main.fs ) > "$$tmp/fresh.out" 2>&1; status=$$?; \
+	  cat "$$tmp/fresh.out"; echo; \
+	  if [ $$status -ne 0 ] || [ ! -s "$$tmp/data/rules.fs" ]; then \
+	    echo "FAILED: fresh clone (no data/) run"; exit 1; \
+	  fi; \
+	  echo "fresh-clone: game ran from a checkout without data/ and created data/rules.fs")
 
 clean:
 	rm -f data/rules.fs data/rules.fs.tmp

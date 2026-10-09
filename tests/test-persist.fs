@@ -114,4 +114,15 @@ CORRUPT-PATH set-rules-path
 load-words
 T{ GAME-ROOT-CELL @ node-leaf? -> TRUE }T
 
+\ ---------------------------------------------------------------------------
+\ Missing parent directory (fresh clone: data/ is not there yet) — the
+\ first append must create it rather than THROW out of CREATE-FILE.
+\ ---------------------------------------------------------------------------
+
+s" no-such-dir/nested/rules.fs" tmp-path 2CONSTANT NODIR-PATH
+NODIR-PATH set-rules-path
+load-words
+T{ GAME-ROOT-CELL @ node-leaf? -> TRUE }T
+T{ NODIR-PATH file-nonempty? -> TRUE }T
+
 CR .( test-persist.fs: all tests passed ) CR

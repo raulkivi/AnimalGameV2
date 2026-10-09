@@ -98,10 +98,37 @@ CREATE line-buf 512 ALLOT
   THEN
 ;
 
+\ path-dir  ( c-addr u -- c-addr u' )  everything before the last `/`;
+\ u' = 0 when the path has no directory part.
+: path-dir ( c-addr u -- c-addr u' )
+  BEGIN
+    DUP 0> WHILE
+    2DUP + 1- C@ [CHAR] / = IF 1- EXIT THEN
+    1-
+  REPEAT
+;
+
+\ ensure-parent-dir  ( c-addr u -- )  creates the rules file's directory
+\ (and any missing parents) so a fresh clone with no data/ still works.
+\ Errors are ignored here; the CREATE-FILE that follows reports them.
+: ensure-parent-dir ( c-addr u -- )
+  path-dir DUP IF $1FF mkdir-parents DROP ELSE 2DROP THEN
+;
+
+: create-failed ( ior -- )
+  s" Cannot create the rules file " PAD PLACE
+  RULES-PATH PAD +PLACE
+  s"  -- run the game from the project root, with a writable data/ directory." PAD +PLACE
+  PAD COUNT DISPLAY
+  THROW
+;
+
 : open-for-append ( c-addr u -- fileid )
   2DUP R/W OPEN-FILE
   IF
-    DROP R/W CREATE-FILE THROW
+    DROP
+    2DUP ensure-parent-dir
+    R/W CREATE-FILE ?DUP IF NIP create-failed THEN
   ELSE
     NIP NIP
   THEN

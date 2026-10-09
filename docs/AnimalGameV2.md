@@ -304,7 +304,7 @@ AnimalGameV2/
 │   ├── test-persist.fs
 │   ├── test-ui.fs
 │   └── integration/     # two-process persistence round-trip
-├── data/               # data/rules.fs, created at runtime, append-only
+├── data/               # data/rules.fs, created at runtime (dir too, if missing), append-only
 ├── docs/
 │   └── AnimalGameV2.md
 ├── Makefile
