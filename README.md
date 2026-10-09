@@ -69,6 +69,7 @@ make test-fresh-clone   # plays one round from a copy of src/ with no data/ dire
   `EVALUATE`s them immediately against the live dictionary, and appends the
   same text to `data/rules.fs`. Nothing is rewritten in full - a correct
   guess writes nothing at all.
+- **Only load files you trust.** `data/rules.fs` is executed as Forth code, so a hand-edited or downloaded file can run anything. Edit it only if you wrote or reviewed every line.
 - **Loading replays the file.** The next launch reads `data/rules.fs`
   (`OPEN-FILE`/`READ-LINE`, one line at a time) and `EVALUATE`s each line -
   interpreting the file rebuilds the whole dictionary. There is no custom

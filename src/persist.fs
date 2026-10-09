@@ -243,7 +243,8 @@ VARIABLE pq-no-xt
 \ The file is closed even when a line THROWs, and a replay that never binds
 \ GAME-ROOT-CELL counts as a failure too (the game could not start from it).
 LINE-BUFSIZE CONSTANT REPLAY-BUFSIZE
-CREATE replay-buf REPLAY-BUFSIZE ALLOT
+\ READ-LINE stores up to u chars plus a 1-2 char line terminator.
+CREATE replay-buf REPLAY-BUFSIZE 2 + ALLOT
 VARIABLE replay-fid
 
 : replay-lines ( -- )
