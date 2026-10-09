@@ -107,13 +107,20 @@ VARIABLE GAME-ROOT-CELL
   2 PICK @ EXECUTE
 ;
 
-CREATE guess-buf 320 ALLOT
+\ guess-buf's length lives in its own cell: a counted string's length byte
+\ would wrap for names longer than ~246 characters.
+CREATE guess-buf UI-BUFSIZE 16 + ALLOT
+VARIABLE guess-len
+: guess+ ( c-addr u -- )
+  DUP guess-len @ + UI-BUFSIZE 16 + > ABORT" guess text too long"
+  TUCK guess-buf guess-len @ + SWAP MOVE  guess-len +!
+;
 : build-guess-q ( text-addr text-len -- addr len )
-  0 guess-buf C!
-  s" Is it a " guess-buf +PLACE
-  guess-buf +PLACE
-  s" ?" guess-buf +PLACE
-  guess-buf COUNT
+  0 guess-len !
+  s" Is it a " guess+
+  guess+
+  s" ?" guess+
+  guess-buf guess-len @
 ;
 
 : a-text$ ( a-body -- addr len ) DUP A-TEXT @ SWAP A-TLEN @ ;
