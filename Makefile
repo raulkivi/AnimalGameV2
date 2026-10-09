@@ -3,8 +3,9 @@
 # gforth's own process exit code does NOT reflect a T{ ... }T assertion
 # failure (tester.fs just prints "INCORRECT RESULT" and keeps going) —
 # only an actual crash (unhandled THROW) sets it. run-test below checks
-# both: the exit code (catches crashes) and a grep for "INCORRECT RESULT"
-# (catches assertion failures), so `make test` fails loudly either way.
+# both: the exit code (catches crashes) and a grep for "INCORRECT RESULT" /
+# "WRONG NUMBER OF RESULTS" (catches assertion failures, including stack
+# leaks), so `make test` fails loudly either way.
 
 #
 # Every test recipe gets its own `mktemp -d` scratch directory, passed to
@@ -21,7 +22,7 @@ SRC_MAIN = src/main.fs
 define run-test
 ANIMALGAMEV2_TMP=$$tmp $(GFORTH) $(1) -e bye > $$tmp/$(2).out 2>&1; status=$$?; \
 	cat $$tmp/$(2).out; \
-	if [ $$status -ne 0 ] || grep -q "INCORRECT RESULT" $$tmp/$(2).out; then \
+	if [ $$status -ne 0 ] || grep -Eq "INCORRECT RESULT|WRONG NUMBER OF RESULTS" $$tmp/$(2).out; then \
 		echo "FAILED: $(1)"; exit 1; \
 	fi
 endef

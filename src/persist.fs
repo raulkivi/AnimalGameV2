@@ -92,7 +92,7 @@ CREATE line-buf 512 ALLOT
   IF
     2DROP FALSE
   ELSE
-    DUP >R
+    NIP NIP DUP >R
     FILE-SIZE THROW OR 0<>               \ nonzero size (either cell of the ud)
     R> CLOSE-FILE THROW
   THEN
