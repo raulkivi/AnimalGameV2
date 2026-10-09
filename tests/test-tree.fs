@@ -6,10 +6,11 @@
 
 REQUIRE test/tester.fs
 REQUIRE ../src/tree.fs
+REQUIRE tmp-path.fs
 
 DECIMAL
 
-s" /tmp/animalgamev2-test-tree-rules.fs" 2CONSTANT TEST-RULES-PATH
+s" test-tree-rules.fs" tmp-path 2CONSTANT TEST-RULES-PATH
 TEST-RULES-PATH R/W CREATE-FILE THROW CLOSE-FILE THROW
 TEST-RULES-PATH set-rules-path
 

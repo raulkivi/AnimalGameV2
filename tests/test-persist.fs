@@ -9,10 +9,11 @@
 
 REQUIRE test/tester.fs
 REQUIRE ../src/persist.fs
+REQUIRE tmp-path.fs
 
 DECIMAL
 
-s" /tmp/animalgamev2-test-rules.fs" 2CONSTANT TEST-RULES-PATH
+s" test-rules.fs" tmp-path 2CONSTANT TEST-RULES-PATH
 TEST-RULES-PATH R/W CREATE-FILE THROW CLOSE-FILE THROW   \ start from empty
 TEST-RULES-PATH set-rules-path
 
@@ -94,13 +95,13 @@ T{ s" GAME-ROOT-CELL" scan-file-for -> TRUE }T
 \ load-words fallback paths (do not depend on prior NODE-* numbering)
 \ ---------------------------------------------------------------------------
 
-s" /tmp/animalgamev2-test-missing.fs" 2CONSTANT MISSING-PATH
+s" test-missing.fs" tmp-path 2CONSTANT MISSING-PATH
 MISSING-PATH set-rules-path
 load-words
 T{ GAME-ROOT-CELL @ node-num -> predicted-num 1- }T   \ a fresh leaf was seeded
 T{ GAME-ROOT-CELL @ node-leaf? -> TRUE }T
 
-s" /tmp/animalgamev2-test-corrupt.fs" 2CONSTANT CORRUPT-PATH
+s" test-corrupt.fs" tmp-path 2CONSTANT CORRUPT-PATH
 
 : write-corrupt ( -- )
   CORRUPT-PATH R/W CREATE-FILE THROW >R

@@ -10,10 +10,11 @@
 
 REQUIRE test/tester.fs
 REQUIRE ../../src/tree.fs
+REQUIRE ../tmp-path.fs
 
 DECIMAL
 
-s" /tmp/animalgamev2-integration-rules.fs" 2CONSTANT INTEGRATION-RULES-PATH
+s" integration-rules.fs" tmp-path 2CONSTANT INTEGRATION-RULES-PATH
 INTEGRATION-RULES-PATH W/O CREATE-FILE THROW CLOSE-FILE THROW   \ always start blank
 INTEGRATION-RULES-PATH set-rules-path
 
