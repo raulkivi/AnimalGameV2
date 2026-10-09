@@ -37,7 +37,8 @@ sudo apt install gforth
 ## Running
 
 Run all commands **from the project root** - `data/rules.fs` is opened
-relative to the gforth process's working directory.
+relative to the gforth process's working directory. The `data/`
+directory is created on first save if it is missing.
 
 ```bash
 make run     # play the game
@@ -53,6 +54,7 @@ make test-ui
 make test-tree
 make test-persist
 make test-integration   # writes+replays a scratch rules file across two real gforth processes
+make test-fresh-clone   # plays one round from a copy of src/ with no data/ directory
 ```
 
 ## How it works
@@ -107,6 +109,7 @@ test-tree.fs: all tests passed
 test-persist.fs: all tests passed
 round1-learn.fs: seeded + learned Wolf, rules file written
 round2-verify-restart.fs: cold-start replay reached Wolf and Dog
+fresh-clone: game ran from a checkout without data/ and created data/rules.fs
 ```
 
 ## A bit about Forth: `CREATE...DOES>`

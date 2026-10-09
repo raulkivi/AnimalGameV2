@@ -242,8 +242,13 @@ rather than push its xt.)
   `PATCH-YES` / `PATCH-NO` / `GAME-ROOT-CELL !` call in the order they were
   originally learned, rebuilding the dictionary - and with it,
   `GAME-ROOT-CELL` ends up correctly bound to the last root that was ever
-  set. A thrown exception (malformed source, e.g. from manual editing) is
-  caught, and the game falls back to the default seed tree.
+  set. A thrown exception (malformed source, e.g. from manual editing), or
+  a file that never sets `GAME-ROOT-CELL`, is caught: the file handle is
+  closed, the `NODE-<n>` counter is rolled back, the bad file is renamed
+  to `data/rules.fs.corrupt-<n>` (first free `n`), and the game seeds a
+  fresh default tree into a new `data/rules.fs`. Seeding into the bad file
+  instead would leave the failing line first, so every later launch would
+  fail at it again and append another seed.
 - **Load** (file absent/empty): `seed-default` calls the exact same
   `persist-new-animal`/`persist-set-root` words a real learn would, with
   `"Dog"` as the text - so the bootstrap goes through the identical
@@ -304,7 +309,7 @@ AnimalGameV2/
 │   ├── test-persist.fs
 │   ├── test-ui.fs
 │   └── integration/     # two-process persistence round-trip
-├── data/               # data/rules.fs, created at runtime, append-only
+├── data/               # data/rules.fs, created at runtime (dir too, if missing), append-only
 ├── docs/
 │   └── AnimalGameV2.md
 ├── Makefile
@@ -452,7 +457,7 @@ defaults; tests override them with scripted answers:
 - `learn ( cell-addr old-leaf-xt parent-xt branch-is-yes -- )` - collects the three inputs (rejecting embedded `"`), synthesizes and evaluates the `ANIMAL-NODE`/`QUESTION-NODE`/rebind lines, appends them via `persist.fs`, and patches `cell-addr` live
 
 **`persist.fs`**:
-- `load-words ( -- )` - reads and `EVALUATE`s `data/rules.fs` line by line if present and non-empty, else runs the default-seed bootstrap; wrapped in `CATCH`, falling back to the default seed on any thrown error
+- `load-words ( -- )` - reads and `EVALUATE`s `data/rules.fs` line by line if present and non-empty, else runs the default-seed bootstrap; wrapped in `CATCH` - on any thrown error the corrupt file is moved aside to `data/rules.fs.corrupt-<n>` and a fresh default seed is written
 - `persist-new-animal ( c-addr u -- xt )` / `persist-new-question ( yes-xt no-xt c-addr u -- xt )` / `persist-set-root ( xt -- )` / `persist-patch-yes` / `persist-patch-no` - each synthesizes a line, `EVALUATE`s it, and appends it to `data/rules.fs`
 - `contains-quote? ( c-addr u -- flag )` - the injection guard's predicate; `learn` re-prompts when it's `TRUE`
 
@@ -479,7 +484,8 @@ defaults; tests override them with scripted answers:
   instead, fakeable the same way in `tree.fs`'s tests.
 - **Graceful degradation.** Invalid yes/no input re-prompts; a missing,
   empty, or corrupt `data/rules.fs` falls back to the default seed instead
-  of crashing or leaving a half-built dictionary.
+  of crashing or leaving a half-built dictionary (a corrupt file is first
+  moved aside to `data/rules.fs.corrupt-<n>`, never appended to).
 - **Word names are never player text.** The only guard the design truly
   depends on - see [Injection guard](#injection-guard).
 
@@ -521,6 +527,10 @@ few mistakes easy; these bit the actual build and are worth remembering:
   `EVALUATE` the generated lines *before* appending them to disk (not the
   reverse) - if evaluation itself throws (e.g. a `PATCH-YES` argument is
   stale), nothing corrupt has been written to `data/rules.fs` yet.
+- **Don't build generated lines in counted strings.** A counted string's
+  length is one byte and silently wraps at 255, regardless of how much
+  space was `ALLOT`ted; `persist.fs`'s line buffer (and `node.fs`'s guess
+  buffer) keep their length in a separate cell and abort on overflow.
 
 ---
 
@@ -574,7 +584,7 @@ Would you like to play again? (yes/no): _
 - [x] On next launch, replaying `data/rules.fs` reflects all previously learned animals, including ones learned deep in the tree (not just at the root)
 - [x] Invalid yes/no input is re-prompted until valid
 - [x] Animal names or questions containing `"` are rejected and re-prompted before ever reaching `EVALUATE` or the save file
-- [x] The game handles a missing, empty, or corrupt `data/rules.fs` gracefully (falls back to the default seed, via `CATCH`)
+- [x] The game handles a missing, empty, or corrupt `data/rules.fs` gracefully (falls back to the default seed, via `CATCH`; a corrupt file is moved aside to `data/rules.fs.corrupt-<n>` so the fallback happens once, not on every launch)
 - [x] All core logic (traversal, learning, word synthesis, patching) is covered by unit tests, with persistence fakeable for I/O-free tests
 - [x] A two-process integration test proves persistence survives a real restart, not just a live `EVALUATE` within one process
 

@@ -96,4 +96,14 @@ S" Lizard" ANIMAL-NODE NODE-4
 T{ ' NODE-2 >BODY Q-NO @ -> ' NODE-4 }T    \ rebound
 T{ ' NODE-2 >BODY Q-YES @ -> ' NODE-3 }T   \ untouched
 
+\ ---------------------------------------------------------------------------
+\ build-guess-q must not wrap for long names (a counted-string length byte
+\ silently wraps at 255): "Is it a " + 250 chars + "?" is 259 characters.
+\ ---------------------------------------------------------------------------
+
+CREATE long-name 250 ALLOT
+long-name 250 CHAR x FILL
+T{ long-name 250 build-guess-q NIP -> 259 }T
+T{ long-name 250 build-guess-q DROP 8 + 250 long-name 250 COMPARE -> 0 }T
+
 CR .( test-node.fs: all tests passed ) CR
