@@ -13,10 +13,29 @@ heap struct in a custom save format. Every learned animal or question
 becomes a live word in the Forth dictionary, and the save file is literal
 Forth source that rebuilds those words on load.
 
+## Three implementations
+
+The same game is implemented three times, deliberately, in different designs
+so they can be compared side by side:
+
+- [**AnimalGame**](https://github.com/raulkivi/AnimalGame) - Forth (gforth).
+  The decision tree is made of heap-allocated nodes, saved as a plain-text
+  line format.
+- [**AnimalGameV2**](https://github.com/raulkivi/AnimalGameV2) - Forth
+  (gforth). Every learned animal or question is a word in the Forth
+  dictionary; the save file is Forth source that rebuilds those words.
+- [**ProAnimalGame**](https://github.com/raulkivi/ProAnimalGame) - GNU
+  Prolog. The tree is a term rebuilt functionally on each round, saved with
+  the language's native `writeq`/`read`.
+
+Based on the classic *Animal* guessing game, best known from David H. Ahl's
+*BASIC Computer Games* (1978), which credits Dartmouth College.
+
 ![Animal Game V2 guessing wrong and learning "Wolf" from the player](docs/assets/demo.gif)
 
 ## Contents
 
+- [Three implementations](#three-implementations)
 - [Requirements](#requirements)
 - [Running](#running)
 - [How it works](#how-it-works)
